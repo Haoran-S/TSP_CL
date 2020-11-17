@@ -7,9 +7,9 @@ This work develops a methodology that enables data-driven methods to continuousl
 
 
 
-References: [1] Haoran Sun, Wenqiang Pu, Minghe Zhu,  Xiao Fu, Tsung-Hui Chang, and Mingyi Hong, "Learning to Continuously Optimize Wireless Resource In Episodically Dynamic Environment,".
+References: [1] Haoran Sun, Wenqiang Pu, Minghe Zhu,  Xiao Fu, Tsung-Hui Chang, and Mingyi Hong, "Learning to Continuously Optimize Wireless Resource In Episodically Dynamic Environment." arXiv preprint arXiv:2011.07782 (2020).
 
-
+Paper avaible at https://arxiv.org/abs/2011.07782.
 
 @ Haoran Sun (sun00111@umn.edu) October 2020.
 
