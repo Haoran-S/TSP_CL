@@ -11,7 +11,22 @@ References: [1] Haoran Sun, Wenqiang Pu, Minghe Zhu,  Xiao Fu, Tsung-Hui Chang, 
 
 Paper avaible at https://arxiv.org/abs/2011.07782.
 
+---
+
+Demo:
+
+For simulation with synthetic dataset, please run: script_rand.sh
+
+For simulation with unbalanced dataset, please run: script_unbalance.sh
+
+For simulation with DeepMIMO dataset, please run: script_mimo.sh
+
+Model files are located in the folder: model (proposed fairness/min-max based method, reservoir sampling, and naive transfer learning)
+
+Data and channel generation files are located in the folder: data (generate synthetic and DeepMIMO channels, as well as ground truth powers labeled by the WMMSE algorithm)
+
+---
+
 @ Haoran Sun (sun00111@umn.edu) October 2020.
 
 All rights reserved.
-
