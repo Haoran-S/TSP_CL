@@ -9,10 +9,10 @@ import argparse
 parser = argparse.ArgumentParser(description='generate figure')
 parser.add_argument('--ext', type=str, default='')
 args0 = parser.parse_args()
-markerseq = ['x', 'None', 's', 'o', '*']
-seq0 = ['results/single_online', 'results/single_joint',
-        'results/reservoir_sampling_online', 'results/minmax_online']
-leg = ['TL', 'Joint', 'Reservoir', 'MinMax (Proposed)']
+markerseq = ['x', 'v', 's', 'o', '*', 'p', '.']
+seq0 = ['results/single_online', 'results/reservoir_sampling_online',  'results/composition_online', 'results/single_joint', 'results/composition_joint']
+leg = ['TL', 'Reservoir',  'Compositional', 'Joint (equal)', 'Joint (weighted)']
+
 seq = [i+args0.ext+'.pt' for i in seq0]
 
 data = [torch.load(seq[i]) for i in range(len(seq))]
@@ -86,6 +86,7 @@ fig, axs = plt.subplots(nrows=1, ncols=1, sharex=True,
                         sharey=True,  figsize=(6, 6))
 plt_max = 0
 plt_min = 100
+#plt_min = 0
 for i in range(num_methods):
     mse = [torch.mean(d) for d in data[i][1]]
     axs.plot([(x+1)*bs for x in range(len(mse))], mse, marker=markerseq[i])
@@ -112,6 +113,7 @@ fig, axs = plt.subplots(nrows=1, ncols=1, sharex=True,
                         sharey=True,  figsize=(6, 6))
 plt_max = 0
 plt_min = 100
+#plt_min = 0
 for i in range(num_methods):
     mse = [torch.mean(d) for d in data[i][2]]
     axs.plot([(x+1)*bs for x in range(len(mse))], mse, marker=markerseq[i])
@@ -204,7 +206,7 @@ if __name__ == "__main__":
 
     fig, axs = plt.subplots(nrows=1, ncols=1, sharex=False,
                             sharey=True,  figsize=(6, 6))
-    for i in range(4):
+    for i in range(len(result_ratio)):
         kwargs = {'cumulative': True, 'linestyle': ls[i]}
         sns.distplot(result_ratio[i], bins=200,
                      hist_kws=kwargs, kde_kws=kwargs, hist=False)
