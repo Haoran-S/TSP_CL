@@ -103,7 +103,7 @@ def eval_tasks(model, tasks, args):
         total_pred += rate_loss
         total_label += rate_loss_of_wmmse
 
-    print('MSE:', [i for i in result_mse])
+    # print('MSE:', [i for i in result_mse])
     print('ratio:', [i for i in result_ratio])
     return result_mse, result_rate, result_ratio, total_pred/total_label
 
@@ -121,7 +121,7 @@ def life_experience(model_o, continuum, x_te, args, accumulate_train=False):
 
     for (i, (v_x, t, v_y)) in enumerate(continuum):
         if accumulate_train:
-            model = model_o
+#            model = model_o
             if i == 0:
                 v_x_acc = v_x
                 v_y_acc = v_y
@@ -130,6 +130,10 @@ def life_experience(model_o, continuum, x_te, args, accumulate_train=False):
                 v_y_acc = torch.cat((v_y_acc, v_y), 0)
             v_x = v_x_acc
             v_y = v_y_acc
+            
+            perm_index = torch.randperm(v_x.size()[0])
+            v_x = v_x[perm_index]
+            v_y = v_y[perm_index]
 
         if args.cuda:
             v_x = v_x.cuda()
