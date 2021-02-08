@@ -17,8 +17,9 @@ Demo:
 
 For simulation with synthetic dataset, please run: script_rand.sh
 
+For simulation with unbalanced dataset, please run: script_unbalance.sh
+
 For simulation with DeepMIMO dataset, please run: script_mimo.sh
-(follow instructions in https://github.com/Haoran-S/DeepMIMO to generate DeepMIMO dataset)
 
 Model files are located in the folder: model (proposed fairness/min-max based method, reservoir sampling, and naive transfer learning)
 

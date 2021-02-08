@@ -35,6 +35,22 @@ class Net(torch.nn.Module):
         self.train()
         time_spent = 0
         for epoch in range(self.n_iter):
+        
+#            compareTime = True
+#            if compareTime and t == 1:
+##                print('--------------------------')
+#                result_ratio = []
+#                for i, task in enumerate(x_te):
+#                    xb = task[1]
+#                    yb = task[2]
+#                    output = self.forward(xb, i)
+#                    rate_loss = -SumRateLoss(xb.cpu(), output, self.noise).item()
+#                    rate_loss_of_wmmse = - \
+#                        SumRateLoss(xb.cpu(), yb.cpu(), self.noise).item()
+#                    result_ratio.append(rate_loss / rate_loss_of_wmmse)
+#                print([i for i in result_ratio], ',', time_spent)
+        
+        
             permutation = torch.randperm(x.size()[0])
             for i in range(0, x.size()[0], self.mini_batch_size):
                 time_start = time.time()

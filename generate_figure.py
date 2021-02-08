@@ -10,8 +10,8 @@ parser = argparse.ArgumentParser(description='generate figure')
 parser.add_argument('--ext', type=str, default='')
 args0 = parser.parse_args()
 markerseq = ['x', 'v', 's', 'o', '*', 'p', '.']
-seq0 = ['results/single_online', 'results/reservoir_sampling_online',  'results/composition_online', 'results/single_joint', 'results/composition_joint']
-leg = ['TL', 'Reservoir',  'Compositional', 'Joint (equal)', 'Joint (weighted)']
+seq0 = ['results/single_online', 'results/reservoir_sampling_online',  'results/minmax_online', 'results/composition_online', 'results/single_joint', 'results/composition_joint']
+leg = ['TL', 'Reservoir',  'Minmax', 'Bilevel', 'Joint (equal)', 'Joint (weighted)']
 
 seq = [i+args0.ext+'.pt' for i in seq0]
 
@@ -19,17 +19,18 @@ data = [torch.load(seq[i]) for i in range(len(seq))]
 num_methods = len(data)
 num_tasks = len(data[0][0][0])
 arg = data[0][6]
-episode_lens = torch.load(arg.data_file)[2].num_train
-episode_lens = [int(k) for k in episode_lens.split('-')]
-print('episode size:', episode_lens)
+#episode_lens = torch.load(arg.data_file)[2].num_train
+#episode_lens = [int(k) for k in episode_lens.split('-')]
+#print('episode size:', episode_lens)
 noise_var = torch.load(arg.data_file)[2].noise
-interval = int(episode_lens[0] * arg.n_epochs / arg.batch_size / arg.log_every)
+#interval = int(episode_lens[0] * arg.n_epochs / arg.batch_size / arg.log_every)
+interval = int(20000 * arg.n_epochs / arg.batch_size / arg.log_every)
 bs = arg.batch_size * arg.log_every / 1000
 
 
 # rate per task
 fig, axs = plt.subplots(nrows=num_tasks, ncols=1,
-                        sharex=True, sharey=False,  figsize=(6, 6))
+                        sharex=True, sharey=False,  figsize=(6, 4.5))
 for t in range(num_tasks):
     plt_max = 0
     plt_min = 100
@@ -51,12 +52,12 @@ for t in range(num_tasks):
     axs[t].set_ylabel('Episode %d' % (t+1))
 plt.legend(leg, loc='lower left', prop={'size': 10})
 axs[-1].set_xlabel('number of samples seen in data stream (k)')
-# plt.tight_layout()
+#plt.tight_layout()
 plt.savefig('results/rate_per_task' + args0.ext + '.pdf')
 
 # ratio per task
 fig, axs = plt.subplots(nrows=num_tasks, ncols=1,
-                        sharex=True, sharey=False,  figsize=(6, 6))
+                        sharex=True, sharey=False,  figsize=(6, 4.5))
 for t in range(num_tasks):
     plt_max = 0
     plt_min = 100
@@ -77,13 +78,13 @@ for t in range(num_tasks):
     axs[t].set_ylabel('Episode %d' % (t+1))
 plt.legend(leg, loc='lower left', prop={'size': 10})
 axs[-1].set_xlabel('number of samples seen in data stream (k)')
-# plt.tight_layout()
+#plt.tight_layout()
 plt.savefig('results/ratio_per_task' + args0.ext + '.pdf')
 
 
 # rate mean
 fig, axs = plt.subplots(nrows=1, ncols=1, sharex=True,
-                        sharey=True,  figsize=(6, 6))
+                        sharey=True,  figsize=(6, 4.5))
 plt_max = 0
 plt_min = 100
 #plt_min = 0
@@ -104,13 +105,13 @@ else:
 plt.legend(leg)
 axs.set_ylabel('average sum-rate (bit/sec.)')
 axs.set_xlabel('number of samples seen in data stream (k)')
-# plt.tight_layout()
+#plt.tight_layout()
 plt.savefig('results/rate_mean' + args0.ext + '.pdf', facecolor='w',
             edgecolor='w', transparent=True)
 
 # ratio mean
 fig, axs = plt.subplots(nrows=1, ncols=1, sharex=True,
-                        sharey=True,  figsize=(6, 6))
+                        sharey=True,  figsize=(6, 4.5))
 plt_max = 0
 plt_min = 100
 #plt_min = 0
@@ -131,8 +132,28 @@ else:
 plt.legend(leg)
 axs.set_ylabel('sum-rate approximation ratio')
 axs.set_xlabel('number of samples seen in data stream (k)')
-# plt.tight_layout()
+#plt.tight_layout()
 plt.savefig('results/ratio_mean' + args0.ext + '.pdf', facecolor='w',
+            edgecolor='w', transparent=True)
+
+
+# cpu time vs rate mean
+fig, axs = plt.subplots(nrows=1, ncols=1, sharex=True,
+                        sharey=True,  figsize=(6, 4.5))
+plt_max = 0
+plt_min = 100
+#plt_min = 0
+for i in range(num_methods):
+    mse = [torch.mean(d) for d in data[i][1]]
+    print(data[i][4])
+    axs.plot(data[i][4], mse, marker=markerseq[i])
+
+plt.legend(leg)
+plt.xscale("log")
+axs.set_ylabel('average sum-rate (bit/sec.)')
+axs.set_xlabel('cpu time (sec.)')
+#plt.tight_layout()
+plt.savefig('results/time_mean' + args0.ext + '.pdf', facecolor='w',
             edgecolor='w', transparent=True)
 
 
@@ -186,16 +207,16 @@ if __name__ == "__main__":
         result_mse.append(MSE_per_sample)
         result_rate.append(SUM_per_sample)
 
-    index = [(0, 0), (0, 1), (1, 0), (1, 1)]
-    ls = ['-.', ':', '--', '-', '--']
+    index = [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)]
+    ls = ['-.', ':', '-', '-', '--', '--']
 
-    fig, axs = plt.subplots(nrows=2, ncols=2, sharex=False,
-                            sharey=True,  figsize=(6, 6))
-    for i in range(4):
+    fig, axs = plt.subplots(nrows=2, ncols=3, sharex=False,
+                            sharey=True,  figsize=(8, 6))
+    for i in range(6):
         sns.distplot(result_ratio[i], bins=100,
                      ax=axs[index[i][0], index[i][1]], kde=False)
         axs[index[i][0], index[i][1]].title.set_text(leg[i])
-        axs[index[i][0], index[i][1]].set_xlim(0, 2)
+        axs[index[i][0], index[i][1]].set_xlim(0, 1.25)
         axs[index[i][0], index[i][1]].set_yscale('log')
         axs[index[i][0], index[i][1]].set_xlabel(
             'sum-rate approximation ratios')
@@ -205,7 +226,7 @@ if __name__ == "__main__":
                 facecolor='w', edgecolor='w', transparent=True)
 
     fig, axs = plt.subplots(nrows=1, ncols=1, sharex=False,
-                            sharey=True,  figsize=(6, 6))
+                            sharey=True,  figsize=(6, 4.5))
     for i in range(len(result_ratio)):
         kwargs = {'cumulative': True, 'linestyle': ls[i]}
         sns.distplot(result_ratio[i], bins=200,

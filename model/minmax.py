@@ -27,13 +27,8 @@ class Net(torch.nn.Module):
         self.noise = args.noise
         self.loss_wmse = weighted_mse_loss
         self.loss_wsumrate = weighted_sumrate_loss
-        if args.eval_metric == 'mse':
-            self.loss_dual = mse_per_sample
-        elif args.eval_metric == 'ratio':
-            self.loss_dual = weighted_ratio_loss
-        else:
-            raise AssertionError('error')
-
+        self.loss_dual = mse_per_sample
+        
         # allocate buffer
         self.M = []
         self.age = 0
@@ -55,14 +50,7 @@ class Net(torch.nn.Module):
             set_x, set_y = x, y
         batch_size = set_x.size()[0]
 
-        if self.weight_ini == 'pra':
-            set_w = torch.ones(batch_size)
-            set_w[0:self.memories] = self.age / self.memories
-            self.age += x.size()[0]
-        elif self.weight_ini == 'mean':
-            set_w = torch.ones(batch_size) / batch_size
-        else:
-            set_w = torch.rand(batch_size)
+        set_w = torch.ones(batch_size) / batch_size
         return set_x, set_y, set_w
 
     def MSE_per_sample(self, input, target):
@@ -116,5 +104,5 @@ class Net(torch.nn.Module):
             self.M = (set_x[indices[0:self.memories]],
                       set_y[indices[0:self.memories]])
 
-        print(torch.sum(indices[0:self.memories] < self.memories).item(
-        ), ' out of ', self.memories, ' samples in buffer are keeped')
+#        print(torch.sum(indices[0:self.memories] < self.memories).item(
+#        ), ' out of ', self.memories, ' samples in buffer are keeped')

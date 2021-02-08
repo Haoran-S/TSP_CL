@@ -7,17 +7,20 @@ TrainScript="--hidden_layers 200-80-80 --batch_size 5000 --noise 1 --mini_batch_
 echo "*********************** TL ***********************"
 python3 main.py $TrainScript --model single
 
-echo "*********************** Joint ***********************"
-python3 main.py $TrainScript --model single --mode joint
-
 echo "*********************** Reservoir ***********************"
 python3 main.py $TrainScript --model reservoir_sampling
 
 echo "*********************** Minmax (Proposed) ***********************"
-python3 main.py $TrainScript --model minmax --dual_stepsize 0.0001
+python3 main.py $TrainScript --model minmax --dual_stepsize 0.01
 
 echo "*********************** Compositionl (Proposed) ***********************"
 python3 main.py $TrainScript --model composition
+
+echo "*********************** Joint (equal) ***********************"
+python3 main.py $TrainScript --model single --mode joint
+
+echo "*********************** Joint (weighted) ***********************"
+python3 main.py $TrainScript --model composition --mode joint
 
 echo "*********************** Generate Figure ***********************"
 python3 generate_figure.py --ext _balance

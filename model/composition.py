@@ -1,7 +1,7 @@
 import torch
 from .common import MLP, weighted_mse_loss, weighted_sumrate_loss
 from .common import weighted_ratio_loss, mse_per_sample, SumRateLoss
-
+import time
 
 class Net(torch.nn.Module):
     def __init__(self,
@@ -56,11 +56,30 @@ class Net(torch.nn.Module):
         set_x, set_y = self.get_batch(x, y)
         grads_squared = [0.0 for _ in self.net.parameters()]
         self.age += 1
-        for epoch in range(self.n_iter):                
+        time_spent = 0
+        for epoch in range(self.n_iter):
+        
+#            compareTime = True
+#            if compareTime and t == 1:
+##                print('--------------------------')
+#                result_ratio = []
+#                for i, task in enumerate(x_te):
+#                    xb = task[1]
+#                    yb = task[2]
+#                    output = self.forward(xb, i)
+#                    rate_loss = -SumRateLoss(xb.cpu(), output, self.noise).item()
+#                    rate_loss_of_wmmse = - \
+#                        SumRateLoss(xb.cpu(), yb.cpu(), self.noise).item()
+#                    result_ratio.append(rate_loss / rate_loss_of_wmmse)
+#                print([i for i in result_ratio], ',', time_spent)
+                
+                
             permutation1 = torch.randperm(set_x.size()[0])
             permutation2 = torch.randperm(set_x.size()[0])
             weight_scale = set_x.size()[0] / self.mini_batch_size
             for i in range(0, x.size()[0], self.mini_batch_size):
+                time_start = time.time()
+                            
                 # primal
                 self.zero_grad()
                 indices1 = permutation1[i:i + self.mini_batch_size]
@@ -95,9 +114,17 @@ class Net(torch.nn.Module):
                         param -= self.lr / (torch.sqrt(square_g) + 1e-8) * grad_current
                         grads_squared_new.append(square_g)
                     grads_squared = grads_squared_new
+                    
+                time_end = time.time()
+                time_spent = time_spent + time_end - time_start
 
+        time_start = time.time()
+                
         set_w = torch.exp(scale*self.loss_dual(set_x, self.forward(set_x, t), set_y, self.noise))
         _, indices_first = torch.sort(set_w[0:self.memories], descending=True)
         _, indices_second = torch.sort(set_w[self.memories:], descending=True)
         indices_combine = torch.cat((indices_first[0:round(self.memories*(1.0-1.0/(self.age+1)))], indices_second[0:round(self.memories/(self.age+1))]))
         self.M = (set_x[indices_combine], set_y[indices_combine])
+
+        time_end = time.time()
+        time_spent = time_spent + time_end - time_start
