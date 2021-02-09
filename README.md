@@ -12,17 +12,27 @@ References: [1] Haoran Sun, Wenqiang Pu, Minghe Zhu,  Xiao Fu, Tsung-Hui Chang, 
 Paper avaible at https://arxiv.org/abs/2011.07782.
 
 ---
+### Demo:
 
-Demo:
+- Install python 3.6
 
-For simulation with synthetic dataset, please run: script_rand.sh
+- Install pip dependencies
+```pip install -r requirements.txt```
 
-For simulation with DeepMIMO dataset, please run: script_mimo.sh
-(follow instructions in https://github.com/Haoran-S/DeepMIMO to generate DeepMIMO dataset)
+- For simulation with synthetic dataset, please run: 
+```sh script_rand.sh```
 
-Model files are located in the folder: model (proposed fairness/min-max based method, reservoir sampling, and naive transfer learning)
+- For simulation with DeepMIMO dataset
 
-Data and channel generation files are located in the folder: data (generate synthetic and DeepMIMO channels, as well as ground truth powers labeled by the WMMSE algorithm)
+  - follow instructions in https://github.com/Haoran-S/DeepMIMO to generate DeepMIMO dataset
+
+  - run: ```sh script_mimo.sh```
+
+
+
+- (optional) follow instructions in https://github.com/Haoran-S/Coordinated_Beamforming to perform simulations for Coordinated Beamforming
+
+
 
 ---
 
