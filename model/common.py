@@ -4,7 +4,7 @@ import torch.nn as nn
 
 
 def Xavier(m):
-    if m.__class__.__name__ == 'Linear':
+    if m.__class__.__name__ == "Linear":
         fan_in, fan_out = m.weight.data.size(1), m.weight.data.size(0)
         std = 1.0 * math.sqrt(2.0 / (fan_in + fan_out))
         a = math.sqrt(3.0) * std
@@ -18,7 +18,7 @@ class MLP(nn.Module):
         super(MLP, self).__init__()
         layers = []
         for i in range(0, len(sizes) - 1):
-            if i < (len(sizes)-2):
+            if i < (len(sizes) - 2):
                 layers.append(nn.Linear(sizes[i], sizes[i + 1]))
                 layers.append(nn.ReLU())
             else:
@@ -41,13 +41,13 @@ def SumRateLoss(data, output, noise, K=10, binary=False, persample=False):
     rx_power = torch.mul(H2, pv)
     mask = torch.eye(K)
     valid_rx_power = torch.sum(torch.mul(rx_power, mask), dim=1)
-    interference = torch.sum(torch.mul(rx_power, 1-mask), axis=1) + noise
+    interference = torch.sum(torch.mul(rx_power, 1 - mask), axis=1) + noise
     pyrate = torch.log2(1 + torch.div(valid_rx_power, interference))
     pyrate = torch.sum(pyrate, dim=1)
     if persample:
-        return - pyrate
+        return -pyrate
     else:
-        return - torch.mean(pyrate)
+        return -torch.mean(pyrate)
 
 
 def weighted_mse_loss(input, target, weight):
@@ -56,8 +56,7 @@ def weighted_mse_loss(input, target, weight):
 
 
 def weighted_sumrate_loss(data, predict, weight, noise_power):
-    SumRate_per_sample = SumRateLoss(
-        data, predict, noise_power, persample=True)
+    SumRate_per_sample = SumRateLoss(data, predict, noise_power, persample=True)
     return torch.sum(weight * SumRate_per_sample)
 
 

@@ -1,15 +1,11 @@
 import torch
 from .common import MLP, weighted_mse_loss, weighted_sumrate_loss
-from .common import weighted_ratio_loss, mse_per_sample
+from .common import mse_per_sample, weighted_ratio_loss
 import numpy as np
 
 
 class Net(torch.nn.Module):
-    def __init__(self,
-                 n_inputs,
-                 n_outputs,
-                 n_tasks,
-                 args):
+    def __init__(self, n_inputs, n_outputs, n_tasks, args):
         super(Net, self).__init__()
 
         # setup network
@@ -27,12 +23,12 @@ class Net(torch.nn.Module):
         self.noise = args.noise
         self.loss_wmse = weighted_mse_loss
         self.loss_wsumrate = weighted_sumrate_loss
-        if args.eval_metric == 'mse':
+        if args.eval_metric == "mse":
             self.loss_dual = mse_per_sample
-        elif args.eval_metric == 'ratio':
+        elif args.eval_metric == "ratio":
             self.loss_dual = weighted_ratio_loss
         else:
-            raise AssertionError('error')
+            raise AssertionError("error")
 
         # allocate buffer
         self.M = []
@@ -55,14 +51,7 @@ class Net(torch.nn.Module):
             set_x, set_y = x, y
         batch_size = set_x.size()[0]
 
-        if self.weight_ini == 'pra':
-            set_w = torch.ones(batch_size)
-            set_w[0:self.memories] = self.age / self.memories
-            self.age += x.size()[0]
-        elif self.weight_ini == 'mean':
-            set_w = torch.ones(batch_size) / batch_size
-        else:
-            set_w = torch.rand(batch_size)
+        set_w = torch.ones(batch_size) / batch_size
         return set_x, set_y, set_w
 
     def MSE_per_sample(self, input, target):
@@ -80,7 +69,7 @@ class Net(torch.nn.Module):
         w = np.maximum(v - theta, 0)
         return torch.from_numpy(w)
 
-    def observe(self, x, t, y, loss_type='MSE', x_te=None, x_tr=None):
+    def observe(self, x, t, y, loss_type="MSE", x_te=None, x_tr=None):
         self.train()
         set_x, set_y, set_w = self.get_batch(x, y)
 
@@ -89,32 +78,31 @@ class Net(torch.nn.Module):
             for i in range(0, x.size()[0], self.mini_batch_size):
                 # primal
                 self.zero_grad()
-                indices = permutation[i:i + self.mini_batch_size]
+                indices = permutation[i : i + self.mini_batch_size]
                 batch_x = set_x[indices]
                 batch_y = set_y[indices]
                 batch_w = set_w[indices]
 
-                if loss_type == 'MSE':
-                    ptloss = self.loss_wmse(
-                        self.forward(batch_x, t), batch_y, batch_w)
-                elif loss_type == 'SUMRATE':
+                if loss_type == "MSE":
+                    ptloss = self.loss_wmse(self.forward(batch_x, t), batch_y, batch_w)
+                elif loss_type == "SUMRATE":
                     ptloss = self.loss_wsumrate(
-                        batch_x, self.forward(batch_x, t), batch_w, self.noise)
+                        batch_x, self.forward(batch_x, t), batch_w, self.noise
+                    )
                 ptloss.backward()
                 self.opt.step()
 
             # dual
-            set_w = set_w + self.dual_stepsize * \
-                self.loss_dual(set_x, self.forward(
-                    set_x, t), set_y, self.noise)
+            set_w = set_w + self.dual_stepsize * self.loss_dual(
+                set_x, self.forward(set_x, t), set_y, self.noise
+            )
             set_w = self.proj(set_w)
 
         _, indices = torch.sort(set_w, descending=True)
         if len(set_w) <= self.memories:
             self.M = (set_x, set_y)
         else:
-            self.M = (set_x[indices[0:self.memories]],
-                      set_y[indices[0:self.memories]])
-
-        print(torch.sum(indices[0:self.memories] < self.memories).item(
-        ), ' out of ', self.memories, ' samples in buffer are keeped')
+            self.M = (
+                set_x[indices[0 : self.memories]],
+                set_y[indices[0 : self.memories]],
+            )

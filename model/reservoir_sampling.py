@@ -4,11 +4,7 @@ import random
 
 
 class Net(torch.nn.Module):
-    def __init__(self,
-                 n_inputs,
-                 n_outputs,
-                 n_tasks,
-                 args):
+    def __init__(self, n_inputs, n_outputs, n_tasks, args):
         super(Net, self).__init__()
 
         # setup network
@@ -47,20 +43,21 @@ class Net(torch.nn.Module):
         else:
             return x, y
 
-    def observe(self, x, t, y, loss_type='MSE', x_tr=None, x_te=None):
+    def observe(self, x, t, y, loss_type="MSE", x_tr=None, x_te=None):
         self.train()
         set_x, set_y = self.get_batch(x, y)
         for epoch in range(self.n_iter):
             permutation = torch.randperm(set_x.size()[0])
             for i in range(0, x.size()[0], self.mini_batch_size):
                 self.zero_grad()
-                indices = permutation[i:i + self.mini_batch_size]
+                indices = permutation[i : i + self.mini_batch_size]
                 batch_x, batch_y = set_x[indices], set_y[indices]
-                if loss_type == 'MSE':
+                if loss_type == "MSE":
                     ptloss = self.loss(self.forward(batch_x, t), batch_y)
                 else:
                     ptloss = self.loss_sumrate(
-                        batch_x, self.forward(batch_x, t), self.noise)
+                        batch_x, self.forward(batch_x, t), self.noise
+                    )
                 ptloss.backward()
                 self.opt.step()
 
